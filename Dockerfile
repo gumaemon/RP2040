@@ -24,9 +24,12 @@ WORKDIR /workspace
 # Copy project files
 COPY . /workspace/
 
-# Build the project
-RUN rm -rf /workspace/build && \
+# Build the project - show detailed output
+RUN set -x && \
+    rm -rf /workspace/build && \
     mkdir -p /workspace/build && \
     cd /workspace/build && \
-    cmake .. && \
-    make -j4
+    cmake .. 2>&1 && \
+    make -j4 2>&1 && \
+    echo "Build completed successfully" && \
+    ls -la /workspace/build/src/ || echo "src directory not found"
