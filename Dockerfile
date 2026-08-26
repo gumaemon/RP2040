@@ -24,12 +24,13 @@ WORKDIR /workspace
 # Copy project files
 COPY . /workspace/
 
-# Build the project - show detailed output
-RUN set -x && \
-    rm -rf /workspace/build && \
+# Build the project - output to image layer
+RUN rm -rf /workspace/build && \
     mkdir -p /workspace/build && \
     cd /workspace/build && \
-    cmake .. 2>&1 && \
-    make -j4 2>&1 && \
-    echo "Build completed successfully" && \
-    ls -la /workspace/build/src/ || echo "src directory not found"
+    cmake .. && \
+    make -j4 && \
+    ls -la /workspace/build/src/keyboard_quantizer.uf2
+
+# Default command copies the file
+CMD ["sh", "-c", "cp /workspace/build/src/keyboard_quantizer.uf2 /workspace/ && echo 'File copied successfully'"]
