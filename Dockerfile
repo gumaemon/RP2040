@@ -11,25 +11,22 @@ RUN apt-get update && apt-get install -y \
     python3 \
     && rm -rf /var/lib/apt/lists/*
 
-# Clone Pico SDK first
+# Clone Pico SDK
 RUN git clone https://github.com/raspberrypi/pico-sdk.git /pico-sdk
 RUN cd /pico-sdk && git submodule update --init
-
-# Set working directory
-WORKDIR /app
-
-# Copy project files
-COPY . /app/
 
 # Set SDK path
 ENV PICO_SDK_PATH=/pico-sdk
 
-# Build the project (in /build inside container)
-WORKDIR /build
-RUN cmake /app && make -j4
+# Set working directory
+WORKDIR /workspace
 
-# Copy output to /app/output for extraction
-RUN mkdir -p /app/output && cp -r /build/src /app/output/
+# Copy project files
+COPY . /workspace/
 
-# Output command
-CMD ["cp", "-r", "/app/output/src", "/output/"]
+# Build the project
+RUN rm -rf /workspace/build && \
+    mkdir -p /workspace/build && \
+    cd /workspace/build && \
+    cmake .. && \
+    make -j4
