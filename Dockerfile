@@ -24,11 +24,12 @@ COPY . /app/
 # Set SDK path
 ENV PICO_SDK_PATH=/pico-sdk
 
-# Clean any existing build cache
-RUN rm -rf /app/build
+# Build the project (in /build inside container)
+WORKDIR /build
+RUN cmake /app && make -j4
 
-# Build the project
-WORKDIR /app/build
-RUN cmake .. && make -j4
+# Copy output to /app/output for extraction
+RUN mkdir -p /app/output && cp -r /build/src /app/output/
 
-# Output will be at /app/build/src/keyboard_quantizer.uf2
+# Output command
+CMD ["cp", "-r", "/app/output/src", "/output/"]
