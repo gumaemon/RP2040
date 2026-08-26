@@ -19,18 +19,20 @@ RUN cd /pico-sdk && git submodule update --init
 ENV PICO_SDK_PATH=/pico-sdk
 
 # Set working directory
-WORKDIR /workspace
+WORKDIR /build
 
 # Copy project files
-COPY . /workspace/
+COPY . /build/
 
-# Build the project - output to image layer
-RUN rm -rf /workspace/build && \
-    mkdir -p /workspace/build && \
-    cd /workspace/build && \
+# Build the project inside the image
+RUN rm -rf /build/build && \
+    mkdir -p /build/build && \
+    cd /build/build && \
     cmake .. && \
-    make -j4 && \
-    ls -la /workspace/build/src/keyboard_quantizer.uf2
+    make -j4
 
-# Default command copies the file
-CMD ["sh", "-c", "cp /workspace/build/src/keyboard_quantizer.uf2 /workspace/ && echo 'File copied successfully'"]
+# Copy built file to a known location
+RUN cp /build/build/src/keyboard_quantizer.uf2 /keyboard_quantizer.uf2
+
+# When run, output the file
+CMD ["cat", "/keyboard_quantizer.uf2"]
