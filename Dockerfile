@@ -11,23 +11,24 @@ RUN apt-get update && apt-get install -y \
     python3 \
     && rm -rf /var/lib/apt/lists/*
 
+# Clone Pico SDK first
+RUN git clone https://github.com/raspberrypi/pico-sdk.git /pico-sdk
+RUN cd /pico-sdk && git submodule update --init
+
 # Set working directory
 WORKDIR /app
 
 # Copy project files
-COPY . .
+COPY . /app/
 
 # Set SDK path
 ENV PICO_SDK_PATH=/pico-sdk
 
-# Clone Pico SDK
-RUN git clone https://github.com/raspberrypi/pico-sdk.git /pico-sdk
-RUN cd /pico-sdk && git submodule update --init
+# Clean any existing build cache
+RUN rm -rf /app/build
 
 # Build the project
-RUN mkdir -p build && \
-    cd build && \
-    cmake .. && \
-    make -j4
+WORKDIR /app/build
+RUN cmake .. && make -j4
 
 # Output will be at /app/build/src/keyboard_quantizer.uf2
